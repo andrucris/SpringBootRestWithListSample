@@ -1,6 +1,8 @@
 package com.sample.rest;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,31 +30,41 @@ public class RestWithLIst {
 	 * 
 	 * method return a list object to the caller
 	 * 
-	 * @return response containting the result of the operation
+	 * @return response containing the result of the operation
 	 */
-	@RequestMapping(path = "/books")
-	public String books() {
+	@RequestMapping(path = "/books/expensive")
+	public String expensiveBooks() {
 
-		loadListWithBooks();
-		return parseToJson();
+		return parseToJson(evaluate(repo.getBookList(), (book) -> book.getPrice() > 100));
 
 	}
 
-	public String parseToJson() {
+	/**
+	 * 
+	 * method return a list object to the caller
+	 * 
+	 * @return response containing the result of the operation
+	 */
+	@RequestMapping(path = "/books/cheap")
+	public String cheapBooks() {
+
+		return parseToJson(evaluate(repo.getBookList(), (book) -> book.getPrice() < 100));
+
+	}
+
+	public String parseToJson(List<Book> list) {
 		Gson gson = new Gson();
-		return gson.toJson(repo.getBookList());
+		return gson.toJson(list);
 	}
 
-	private void loadListWithBooks() {
-		List<Book> bookList = repo.getBookList();
-		Book book1 = new Book();
-		book1.setTitle("Book1");
-		book1.setPrice(20.0);
-		bookList.add(book1);
-		Book book2 = new Book();
-		book2.setTitle("Book1");
-		book2.setPrice(30.0);
-		bookList.add(book2);
+	public List<Book> evaluate(List<Book> list, Predicate<Book> predicate) {
+		List<Book> bookList = new ArrayList<>();
+		for (Book book : list) {
+			if (predicate.test(book)) {
+				bookList.add(book);
+			}
+		}
+		return bookList;
 	}
 
 }
