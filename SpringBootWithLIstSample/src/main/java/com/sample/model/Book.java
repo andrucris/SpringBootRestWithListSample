@@ -1,7 +1,7 @@
 package com.sample.model;
 
 /**
- * hello
+ * hello second
  */
 public class Book {
 
